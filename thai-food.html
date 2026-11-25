@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>อาหารไทย อร่อยทั่วไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff8ec;
+    --surface: #ffffff;
+    --text: #2b1d14;
+    --muted: #7a6656;
+    --chili: #c8321f;
+    --turmeric: #f2a900;
+    --herb: #3f7d3a;
+    --border: #f0e0c4;
+    --shadow: 0 4px 14px rgba(120, 70, 20, .10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1410;
+      --surface: #2a1f19;
+      --text: #f6ebdc;
+      --muted: #b9a590;
+      --border: #44332a;
+      --shadow: 0 4px 14px rgba(0, 0, 0, .4);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Prompt", "Noto Sans Thai", system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--chili), #e2641f 60%, var(--turmeric));
+    color: #fff;
+    text-align: center;
+    padding: 72px 16px 80px;
+  }
+  .hero .emoji { font-size: 56px; }
+  .hero h1 { margin: 8px 0; font-size: clamp(2rem, 6vw, 3.4rem); }
+  .hero p { margin: 0 auto 28px; max-width: 520px; opacity: .95; font-size: 1.1rem; }
+  .btn {
+    display: inline-block;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 26px;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn-light { background: #fff; color: var(--chili); }
+  .btn-light:hover { transform: translateY(-2px); }
+  .btn-herb { background: var(--herb); color: #fff; }
+  .btn-herb:hover { filter: brightness(1.1); }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin: 36px 0 20px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font: inherit;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--chili); border-color: var(--chili); color: #fff; }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+    padding-bottom: 56px;
+  }
+  @media (min-width: 560px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 860px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1100px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: transform .2s, border-color .2s;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card.hidden { display: none; }
+  .card.picked { border-color: var(--turmeric); transform: scale(1.03); }
+  .card .pic { font-size: 52px; line-height: 1; }
+  .card h3 { margin: 10px 0 0; font-size: 1.15rem; }
+  .card .en { color: var(--muted); font-size: .85rem; margin-bottom: 6px; }
+  .card p { margin: 6px 0 12px; font-size: .95rem; }
+  .meta { display: flex; justify-content: space-between; align-items: center; font-size: .82rem; color: var(--muted); }
+  .tag { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+
+  .card { position: relative; }
+  .card .heart {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .card .heart:hover { transform: scale(1.15); }
+  .heart:focus-visible, .chip:focus-visible, .btn:focus-visible {
+    outline: 3px solid var(--turmeric);
+    outline-offset: 2px;
+  }
+  .status { margin: 0 0 12px; min-height: 1.6em; text-align: center; color: var(--muted); }
+  .empty { padding: 32px 0 56px; text-align: center; color: var(--muted); }
+
+  footer { text-align: center; padding: 28px 16px; color: var(--muted); border-top: 1px solid var(--border); font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="emoji">🍜🌶️🥥</div>
+  <h1>อาหารไทย อร่อยทั่วไทย</h1>
+  <p>รวมเมนูไทยที่ต้องลอง ตั้งแต่ผัดไทยไปจนถึงข้าวเหนียวมะม่วง เลือกดูตามหมวด สุ่มเมนูที่จะกิน และเก็บเมนูโปรดไว้ดูภายหลัง</p>
+  <a class="btn btn-light" href="#menu">ดูเมนูทั้งหมด</a>
+</header>
+
+<main class="wrap" id="menu">
+  <div class="toolbar">
+    <div class="chips" id="chips" role="group" aria-label="กรองตามหมวด"></div>
+    <button class="btn btn-herb" id="randomBtn" type="button">🎲 สุ่มเมนู</button>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+  <p class="empty" id="empty" hidden>ยังไม่มีเมนูโปรด กดหัวใจที่การ์ดเพื่อเก็บไว้</p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>ทำด้วยความหิว 🇹🇭 — สไปซี่ระดับ 🌶 = เผ็ดน้อย, 🌶🌶🌶 = เผ็ดมาก</footer>
+
+<script>
+  const dishes = [
+    { id: "pad-thai", th: "ผัดไทย", en: "Pad Thai", emoji: "🍝", cat: "ผัด-ทอด", spice: 1, region: "ภาคกลาง", desc: "เส้นจันท์ผัดซอสมะขาม ใส่กุ้ง เต้าหู้ ถั่วงอก โรยถั่วป่น" },
+    { id: "tom-yum-goong", th: "ต้มยำกุ้ง", en: "Tom Yum Goong", emoji: "🍲", cat: "ต้ม-แกง", spice: 3, region: "ภาคกลาง", desc: "ซุปเปรี้ยวเผ็ดหอมตะไคร้ ข่า ใบมะกรูด กุ้งตัวโต" },
+    { id: "som-tam", th: "ส้มตำ", en: "Som Tam", emoji: "🥗", cat: "ยำ-ตำ", spice: 3, region: "ภาคอีสาน", desc: "มะละกอสับตำกับพริก มะนาว น้ำปลา กินคู่ไก่ย่างข้าวเหนียว" },
+    { id: "green-curry", th: "แกงเขียวหวาน", en: "Green Curry", emoji: "🍛", cat: "ต้ม-แกง", spice: 2, region: "ภาคกลาง", desc: "แกงกะทิหอมพริกแกงเขียว มะเขือเปราะ ใบโหระพา" },
+    { id: "massaman-curry", th: "มัสมั่น", en: "Massaman Curry", emoji: "🥘", cat: "ต้ม-แกง", spice: 1, region: "ภาคใต้", desc: "แกงกะทิรสกลมกล่อม หอมเครื่องเทศ เนื้อนุ่ม มันฝรั่ง ถั่วลิสง" },
+    { id: "pad-kra-pao", th: "ผัดกะเพรา", en: "Pad Kra Pao", emoji: "🍳", cat: "จานเดียว", spice: 3, region: "ทั่วไทย", desc: "ผัดกะเพราหมูสับ ไข่ดาวกรอบ ราดข้าวสวยร้อน ๆ" },
+    { id: "khao-man-gai", th: "ข้าวมันไก่", en: "Khao Man Gai", emoji: "🍗", cat: "จานเดียว", spice: 1, region: "ทั่วไทย", desc: "ข้าวหุงน้ำซุปไก่ ไก่ต้มนุ่ม น้ำจิ้มเต้าเจี้ยวสูตรเด็ด" },
+    { id: "larb-moo", th: "ลาบหมู", en: "Larb Moo", emoji: "🥬", cat: "ยำ-ตำ", spice: 3, region: "ภาคอีสาน", desc: "หมูสับคลุกพริกป่น ข้าวคั่ว มะนาว สะระแหน่ หอมแดง" },
+    { id: "tom-kha-gai", th: "ต้มข่าไก่", en: "Tom Kha Gai", emoji: "🥥", cat: "ต้ม-แกง", spice: 1, region: "ภาคกลาง", desc: "ซุปกะทิหอมข่า ตะไคร้ เห็ด ไก่ชิ้นนุ่ม รสเปรี้ยวหวานมัน" },
+    { id: "pad-see-ew", th: "ผัดซีอิ๊ว", en: "Pad See Ew", emoji: "🍜", cat: "ผัด-ทอด", spice: 1, region: "ภาคกลาง", desc: "เส้นใหญ่ผัดซีอิ๊วหวาน หอมกลิ่นกระทะ ใส่คะน้าและไข่" },
+    { id: "mango-sticky-rice", th: "ข้าวเหนียวมะม่วง", en: "Mango Sticky Rice", emoji: "🥭", cat: "ของหวาน", spice: 0, region: "ทั่วไทย", desc: "ข้าวเหนียวมูนกะทิ กินกับมะม่วงสุกหวานฉ่ำ" },
+    { id: "khanom-krok", th: "ขนมครก", en: "Khanom Krok", emoji: "🍮", cat: "ของหวาน", spice: 0, region: "ภาคกลาง", desc: "ขนมกะทิเตาร้อน ขอบกรอบ ตรงกลางนุ่มหอมมัน" }
+  ];
+
+  const FAV_CAT = "❤️ เมนูโปรด";
+  const ALL_CAT = "ทุกหมวด";
+  const cats = [ALL_CAT, "จานเดียว", "ต้ม-แกง", "ยำ-ตำ", "ผัด-ทอด", "ของหวาน", FAV_CAT];
+  const STORAGE_KEY = "thaiFood.favorites";
+  const grid = document.getElementById("grid");
+  const chipsEl = document.getElementById("chips");
+  const statusEl = document.getElementById("status");
+  const emptyEl = document.getElementById("empty");
+
+  let currentCat = ALL_CAT;
+  let lastPickedId = null;
+  let favChip = null;
+
+  // เมนูโปรด: เก็บเป็นรายการ id ใน localStorage (ถ้าใช้ไม่ได้ ก็เก็บในหน้านี้เงียบ ๆ)
+  const favorites = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (Array.isArray(saved)) {
+      const known = new Set(dishes.map(d => d.id));
+      saved.forEach(id => { if (known.has(id)) favorites.add(id); });
+    }
+  } catch (e) { /* อ่านไม่ได้หรือข้อมูลเสีย: เริ่มจากว่าง */ }
+
+  function saveFavorites() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...favorites])); }
+    catch (e) { /* เก็บไม่ได้: ใช้งานต่อในหน้านี้ */ }
+  }
+
+  function isVisible(d) {
+    if (currentCat === ALL_CAT) return true;
+    if (currentCat === FAV_CAT) return favorites.has(d.id);
+    return d.cat === currentCat;
+  }
+
+  // Build cards (textContent only — no HTML injection)
+  dishes.forEach(d => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.dataset.cat = d.cat;
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      e.textContent = text;
+      return e;
+    };
+    const heart = document.createElement("button");
+    heart.type = "button";
+    heart.className = "heart";
+    heart.setAttribute("aria-label", "ชอบ " + d.th);
+    heart.addEventListener("click", () => toggleFavorite(d));
+    const meta = el("div", "meta", "");
+    meta.append(
+      el("span", "", d.spice ? "🌶".repeat(d.spice) : "ไม่เผ็ด"),
+      el("span", "tag", d.region)
+    );
+    card.append(
+      heart,
+      el("div", "pic", d.emoji),
+      el("h3", "", d.th),
+      el("div", "en", d.en),
+      el("p", "", d.desc),
+      meta
+    );
+    grid.append(card);
+    d.node = card;
+    d.heart = heart;
+  });
+
+  function render() {
+    dishes.forEach(d => {
+      const fav = favorites.has(d.id);
+      d.heart.textContent = fav ? "❤️" : "🤍";
+      d.heart.setAttribute("aria-pressed", String(fav));
+      d.node.classList.toggle("hidden", !isVisible(d));
+    });
+    document.querySelectorAll(".chip").forEach(c =>
+      c.setAttribute("aria-pressed", String(c.dataset.cat === currentCat)));
+    favChip.textContent = FAV_CAT + " (" + favorites.size + ")";
+    emptyEl.hidden = !(currentCat === FAV_CAT && favorites.size === 0);
+  }
+
+  function clearPicked() {
+    document.querySelectorAll(".card.picked").forEach(c => c.classList.remove("picked"));
+  }
+
+  function toggleFavorite(d) {
+    if (favorites.has(d.id)) favorites.delete(d.id); else favorites.add(d.id);
+    saveFavorites();
+    render();
+  }
+
+  // Category chips
+  function setCat(cat) {
+    currentCat = cat;
+    statusEl.textContent = "";
+    clearPicked();
+    render();
+  }
+  cats.forEach(cat => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.dataset.cat = cat;
+    b.textContent = cat;
+    b.addEventListener("click", () => setCat(cat));
+    chipsEl.append(b);
+    if (cat === FAV_CAT) favChip = b;
+  });
+  render();
+
+  // Random pick: สุ่มจากเมนูที่เห็นอยู่ ไม่ซ้ำตัวเดิมติดกัน (ยกเว้นเหลือเมนูเดียว)
+  document.getElementById("randomBtn").addEventListener("click", () => {
+    clearPicked();
+    const pool = dishes.filter(isVisible);
+    if (!pool.length) {
+      statusEl.textContent = "ยังไม่มีเมนูให้สุ่ม";
+      return;
+    }
+    const choices = pool.length > 1 ? pool.filter(d => d.id !== lastPickedId) : pool;
+    const d = choices[Math.floor(Math.random() * choices.length)];
+    lastPickedId = d.id;
+    statusEl.textContent = "วันนี้กิน " + d.th + " ดีไหม? " + d.emoji;
+    d.node.classList.add("picked");
+    d.node.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+</script>
+</body>
+</html>
